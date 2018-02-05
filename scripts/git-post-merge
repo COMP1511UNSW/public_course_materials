@@ -1,0 +1,4 @@
+#!/bin/sh
+. $(dirname $(readlink -f $0))/config.sh
+cd $public_html_session_directory || exit 1
+setsid $scripts_dir/build >.build_output 2>&1 </dev/null &

@@ -1,0 +1,203 @@
+#!/usr/bin/env python3.5
+
+import glob,os,re,subprocess, sys
+from bs4 import BeautifulSoup
+from pathlib import Path
+import config
+
+debug = int(os.environ.get('DEBUG', 0))
+
+# return a list of all public files for a tut-lab
+
+def get_public_files_tlb(tlb_path):
+	released = glob.glob(os.path.join(tlb_path, '*released'))
+	if not released:
+		return []
+	public = ["build.sh"]
+	for tut_or_lab_or_test in ['tut', 'lab', 'test']:
+		path_prefix = os.path.join(tlb_path, tut_or_lab_or_test)
+		if os.path.exists(path_prefix+'_answers_released'):
+			public += [tut_or_lab_or_test + '.html', tut_or_lab_or_test + '.autotest', tut_or_lab_or_test + '.automarking']
+			public += get_public_files_jinja(path_prefix + '.html', include_answers=True)
+		elif os.path.exists(path_prefix + '_questions_released'):
+			public += [tut_or_lab_or_test + '.html', tut_or_lab_or_test + '.autotest', tut_or_lab_or_test + '.automarking']
+			public += get_public_files_jinja(path_prefix + '.html')
+	return [os.path.join(tlb_path, p) for p in public] + get_public_files_txt(tlb_path) + released
+	
+# return a list of all public files for an assignment
+def get_public_files_asssignment(assignment_path):
+	released = glob.glob(os.path.join(assignment_path, '*released'))
+	if not released:
+		return []
+	if not os.path.isdir(assignment_path):
+		return []
+	if not os.path.exists(os.path.join(assignment_path, 'assignment_questions_released')):
+		return []
+	public	= ["index.html", "build.sh", "autotest"]
+	public += get_public_files_jinja(os.path.join(assignment_path, "index.html"))
+	if os.path.exists(os.path.join(assignment_path, 'assignment_answers_released')):
+		public += ["automarking"]
+	return [os.path.join(assignment_path, p) for p in public] + get_public_files_txt(assignment_path) + released
+
+# extract any files apparently refered to in a Jinja (html) tut/lab/assignment ...
+# so they can be copied to the public_directory
+
+def get_public_files_jinja(template, include_answers=False):
+	try:
+		with open(template) as f:
+			page = f.read()
+			# < characters in Jinja break Beautiful Soup, e.g in Python betwee {{ }}
+			# The fragile workaround is to replace any < without a following > on the sameline 
+			page = re.sub('<([^>]*\n)', r'__ESCAPE_JINJA_LT__\1', page,flags=re.M)
+			soup = BeautifulSoup(page, 'html5lib')
+			if not include_answers:
+				for tag in soup.findAll({'div':True,'span':True,'pre':True}, { "class" : re.compile(r'\banswer\b')}):
+					tag.replaceWith(soup.new_tag('p'))
+			refs =	[a['href'] for a in soup.find_all('a', href=True)] 
+			refs += [img['src'] for img in soup.find_all('img', src=True)]
+			refs += re.findall(r'\{\{\s*show_cgi_example\s*\(\s*"(.*?)"', str(soup))
+			refs += re.findall(r'\{\{\s*include_code\s*\(\s*"(.*?)"', str(soup))
+			relative_refs = set()
+			for ref in refs: 
+				ref = re.sub(r'^{{.*?}}', '', ref)
+				ref = re.sub(r'[#?].*', '', ref)
+				if not ref.startswith('http') and not ref.startswith('/'):
+					relative_refs.add(ref)
+			if debug > 1:
+				print(template, 'implicit public files', include_answers, relative_refs)
+			return relative_refs
+	except FileNotFoundError:
+		return []
+
+# glob	files specified in a public_files.txt file
+# to be copied to the public_directory
+
+def get_public_files_txt(directory='.'):
+	public_relative_paths = []
+	try:
+		with open(os.path.join(directory, "public_files.txt")) as f:
+			for path in f:
+				path = re.sub(r'#.*', '', path)
+				path = path.strip()
+				if path:
+					public_relative_paths.append(path)
+	except FileNotFoundError:
+		return []
+	public_absolute_paths = []
+	for p in public_relative_paths:
+		if directory != '.':
+			public_absolute_paths += glob.glob(os.path.join(directory, p))
+		else:
+			public_absolute_paths += glob.glob(p)
+	if debug > 1:
+		print(directory, 'explicit public files', public_absolute_paths)
+	return public_absolute_paths
+
+#
+# delete sample solutions from html source when solutions have not been released
+#
+def copy_without_solutions(censored_file, public_dir):
+	with open(censored_file) as f:
+		page = f.read()
+		# < characters in Jinja	 break Beautiful Soup, e.g in Python betwee {{ }}
+		# The fragile workaround is to replace any < without a following > on the sameline 
+		page = re.sub('<([^>]*\n)', r'__ESCAPE_JINJA_LT__\1', page,flags=re.M)
+		soup = BeautifulSoup(page, 'html.parser')
+		for tag in soup.findAll({'div':True,'span':True,'pre':True}, { "class" : re.compile(r'\banswer\b')}):
+			tag.replaceWith(soup.new_tag('p'))
+		page = str(soup)
+		page = re.sub('__ESCAPE_JINJA_LT__', '<', page)
+	public_file = os.path.join(public_dir, censored_file)
+	os.makedirs(os.path.dirname(public_file), mode=0o755, exist_ok=True)
+	with open(public_file, mode="w") as f:
+		f.write(page)
+	os.chmod(public_file, 0o644)
+private_dir = os.path.join(config.variables['public_html_session_directory'], 'private')
+public_dir = os.path.join(config.variables['public_html_session_directory'], 'public')
+os.chdir(private_dir)
+
+last_commit_message = subprocess.run(['git', 'log', '-1', '--pretty=%B'], stdout=subprocess.PIPE, universal_newlines=True).stdout
+public_prefixes = set(get_public_files_txt("."))
+
+# symlinks for assignments
+public_prefixes.update(glob.glob('assignments/ass?'))
+
+for assignment_path in sorted(glob.glob(os.path.join('assignments', '*'))):
+	p = get_public_files_asssignment(assignment_path)
+	if debug: print('\n'.join(p))
+	public_prefixes.update(p)
+										
+censored_files = set()
+for tlb_path in sorted(glob.glob(os.path.join('tlb', '[0-9][0-9]'))):
+	p = get_public_files_tlb(tlb_path)
+	if debug: print('\n'.join(p))
+	public_prefixes.update(p)
+	for tut_or_lab_or_test in ['tut', 'lab', 'test']:
+		path_prefix = os.path.join(tlb_path, tut_or_lab_or_test)
+		if os.path.exists(path_prefix + '_questions_released') and not	os.path.exists(path_prefix + '_answers_released'):
+			censored_files.add(path_prefix + '.html')
+
+command = ['git','ls-tree', '-r', 'HEAD']
+if debug:
+	print(' '.join(command))
+p = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
+public_files = set()
+sym_links = []
+for line in p.stdout.splitlines():
+	(mode, type, rest) = line.split(' ', 2)
+	(hash, pathname) = rest.split('\t', 1)
+	if mode == "120000":
+		sym_links.append(pathname)
+	for prefix in public_prefixes:
+		if pathname.startswith(prefix):
+			public_files.add(pathname)
+			break
+
+# if the target of a sym link is a public file,
+# add the symlink to the public files
+for symlink	in sym_links:
+	try:
+		sym_link_target = Path(symlink).resolve()
+		if str(sym_link_target) in public_files:
+			public_files.add(symlink)
+		if debug > 1:
+				print(symlink, 'added as it is link to public file', sym_link_target)
+	except OSError:
+		pass
+
+if debug > 1:
+	print('rsyncing these files to the public directory:')
+	print('\n'.join(public_files).encode('utf-8'))
+	
+command = ['rsync', '-prlt', '--chmod=Du=rwx,Dgo=rx,Fu=rwX,Fgo=rX', '--files-from=-', '.', public_dir]
+if debug:
+	print(' '.join(command))
+subprocess.run(command, input='\n'.join(public_files).encode('utf-8'))
+
+for censored_file in censored_files:
+	copy_without_solutions(censored_file, public_dir)
+		
+public_files.update(censored_files)
+
+os.chdir(public_dir)
+if not os.path.isdir('.git'):
+	sys.exit(0)
+
+command = ['git','ls-tree', '-r', 'master', '--name-only']
+if debug:
+	print(' '.join(command))
+p = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
+old_public_files = set()
+for pathname in p.stdout.splitlines():
+	if pathname not in public_files:
+		try:
+			os.unlink(pathname)
+		except FileNotFoundError:
+			pass
+	else:
+		old_public_files.add(pathname)
+		
+for pathname in public_files - old_public_files:
+	subprocess.run(['git', 'add', pathname])
+subprocess.run(['git', 'commit', '-a', '-m', last_commit_message])
+subprocess.run(['git', 'push', '-u', 'origin', 'master'])

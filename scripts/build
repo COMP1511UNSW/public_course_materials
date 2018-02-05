@@ -1,0 +1,131 @@
+ #!/bin/bash
+. $(dirname $(readlink -f $0))/config.sh
+
+cd $public_html_session_directory || exit 1
+touch .build_started
+
+mkdir -p public
+chmod 755 public
+
+cd $public_html_session_directory/private || exit 1
+git diff --name-only `git reflog|sed 2q|cut -c1-8`|scripts/set_filesystem_permissions
+chmod 750 .
+
+cd $public_html_session_directory || exit 1
+private/scripts/update_public_files
+
+rm -rf $flask_cache_directory &
+
+case `whoami` in
+cs[0-9][0-9][0-9][0-9])
+	htaccess_suffix=class_account
+	mkdir -p -m 750  $flask_cache_directory
+	link_dir=public
+	;;
+*)
+	#
+	# test environment on private machine
+	#
+	htaccess_suffix=localhost
+	link_dir=private
+	chmod 755 $public_html_session_directory/private 
+esac
+
+
+for p in public private 
+do
+	cd $public_html_session_directory/$p || exit 1
+	# these symlinks allow images etc to be directly served
+	# from lab, tut or test URLs
+	rm -f lab tut test
+	ln -sf tlb lab
+	ln -sf tlb tut
+	ln -sf tlb test
+
+	for d in . cgi cgi/*/ assignments/*/tournament
+	do
+		s=$htaccess_suffix
+		# use "class_account" htaccess for CGI account if there is no "cgi" htaccess
+		test ! -r  $d/htaccess.$s && s=class_account
+		if test -r $d/htaccess.$s
+		then
+			chmod 644 $d/htaccess.$s
+			ln -sf htaccess.$s $d/.htaccess
+		else
+			rm -f $d/.htaccess
+		fi
+	done
+done
+
+cd $public_html_session_directory || exit 1
+
+# generate bash config variables from Python config script
+
+for p in public private 
+do
+	$p/scripts/config.py >$p/scripts/config.sh.$$ &&
+	chmod 755 $p/scripts/config.sh.$$ &&
+	mv $p/scripts/config.sh.$$ $p/scripts/config.sh
+done
+
+# remove dead links
+for d in *
+do
+	test -L "$d" && test ! -r "$d" && rm -f "$d"
+done
+
+#  links public course content into session directory
+for d in `ls $public_html_session_directory/$link_dir` .htaccess
+do
+	ln -sf $link_dir/$d
+done
+
+ln -sf private/.flask_key
+ln -sf private/.github_secret
+ln -sf private/surveys 
+
+cd $public_html_session_directory/public || exit 1
+ln -sf ../.github_secret
+ln -sf ../.flask_key
+
+cd $public_html_directory || exit 1
+
+# remove dead links
+for d in *
+do
+	test ! -r "$d" && rm -f "$d"
+done
+
+#  links files for this session into top-level public_html directory
+
+for d in `ls $public_html_session_directory/public` .htaccess .flask_key surveys
+do
+	ln -sf $unsw_session/$d
+done
+
+cd $public_html_session_directory/private/.git/hooks/
+ln -sf ../../scripts/git-pre-commit pre-commit
+ln -sf ../../scripts/git-post-merge post-merge
+
+cd $public_html_session_directory/private/
+for d in exam lec assignments/* tlb/*
+do
+    for repo in private public
+    do
+        dir=$public_html_session_directory/$repo/$d
+        test -d $dir || continue
+        cd $dir
+        if test -x build.sh
+        then
+            echo $dir/build.sh
+            </dev/null ./build.sh
+        fi
+        if test -e Makefile
+        then
+            echo make -C $dir
+            </dev/null make -j10 -s 
+        fi
+    done
+done
+
+touch $public_html_session_directory/.build_finished

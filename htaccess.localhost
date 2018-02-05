@@ -1,0 +1,70 @@
+<Files "flask.cgi">
+SetHandler cgi-script
+</Files>
+
+<Files "flask_tutors.cgi">
+SetHandler cgi-script
+</Files>
+
+Options +ExecCGI
+Order deny,allow
+
+Deny from all
+Allow from 127.0.0.1
+Allow from 192.168.0.0/255.255.0.0  # home
+Allow from 172.0.0.0/255.0.0.0      # docker
+Allow from ::1 #ipv6
+
+SetEnvIf Request_URI ^ BASE_URL=/~cs2041
+
+# the tutors directory and other directories containing .py files which must run as CGI scripts
+# need htaccess files explicitly setting their type
+
+AddType text/plain c h pbm pl py sh
+<FilesMatch "\.(c|h|pbm|pl|py|sh)$">
+	forcetype text/plain
+</FilesMatch>
+
+RewriteEngine On
+
+# filesystem permissions should prevent these accesses too
+RedirectMatch 404 (/|^)(\.\.|.*.auto(test|marking)|\.git.*|scripts|work|htaccess\..*)(/|$)
+
+# Skip all remaining rewrites if already going to be served by flask_tutors.cgi
+
+RewriteRule ^flask_tutors\.cgi - [L]
+
+# the release to students of tut/lab questions/answers is indicated
+# by presence of file (e.g. tlb/04/lab_answers_released)
+# redirect access to unreleased questions/answers to
+# flask_tutors.cgi which is restricted to teaching staff
+# Note this catches any URL with this suffix
+
+# filesystem permissions access to un released solutions
+# this rewrite allows tutors access
+
+RewriteCond /web/cs2041/tlb/$3/$2_$4_released !-f
+RewriteRule ((tut|lab|test)/([0-9][0-9])/(questions|answers))$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+
+RewriteRule ^(notes/[0-9][0-9])$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+RewriteRule ^(submission/) %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+RewriteRule ^tutors_only$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+
+# Skip all remaining rewrites if already going to be served by flask.cgi
+
+RewriteRule ^flask\.cgi - [L]
+
+# Specify some case NOT to be served by flask
+
+RewriteRule ^(ClassRoll|CourseTimetable)\.html - [L]
+RewriteRule ^(cgi|doc|tutors)/ - [L]
+
+RewriteRule ^((assignments|code|tlb|tut|lab|test)/.*\.cgi) - [L]
+
+# for efficiency serve these file types directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.(jpg|png|pbm|zip|txt|pdf)$ - [L]
+
+# Send everything else to flask
+
+RewriteRule ^(.*) %{ENV:BASE_URL}/flask.cgi/$1

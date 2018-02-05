@@ -1,0 +1,97 @@
+#!/bin/sh
+#set -x
+unset CDPATH
+full_pathname="`readlink -f $0`"
+script_dir=`dirname $full_pathname`
+d=`readlink -f $script_dir/..`
+
+for file
+do
+	file="`readlink -f $file`"
+	filename=`basename "$file"`
+	filename_basename=`basename "$file"|sed 's/\..*//'`
+	
+	case "$file" in
+	*/templates/*.html|*/index.html)
+		;;
+	*.html|*.jinja)
+#		$script_dir/check_jinja "$file"
+		;;
+	*/scripts/*) continue ;;
+	*/assignments/*/tests/*) continue ;;
+	*/assignments/*/examples/*) continue ;;
+	*/kangaroo.c|*/lab14.c) ;;
+	*illegal*.c) ;;
+	*/list_sol.c) ;;
+	*.c)
+		gcc -std=gnu99 -Wall -Werror -c -O "$file" -o /dev/null -lm
+#		lab=`grep -l "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		test -z "$lab" && lab=`grep -l "^$filename_basename" $d/tlb/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		if test -n "$lab"
+#		then
+#			program=`grep -h "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			test -z "$program" && program=`grep -h "^$filename_basename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			$script_dir/autotest --exercise "$lab" -programs "$program" --stdin <$file |grep -v passed
+#		fi
+		;;
+	*.pl)
+		perl -cw "$file" 2>&1|grep -v 'syntax OK'
+#		lab=`grep -l "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		test -z "$lab" && lab=`grep -l "^$filename_basename" $d/tlb/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		if test -n "$lab"
+#		then
+#			program=`grep -h "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			test -z "$program" && program=`grep -h "^$filename_basename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			$script_dir/autotest --exercise "$lab" -programs "$program" --stdin <$file |grep -v passed
+#		fi
+		;;
+	*/scripts/*.py|*/cgi/*.py|*/cse/*.py)
+		case `sed 1q "$file"` in
+		*python3*)
+			python3 -B -m py_compile "$file" 2>&1;;
+		*)
+			python -B -m py_compile "$file" 2>&1 
+		esac
+		;;
+	*.py)
+		case `sed 1q "$file"` in
+		*python2*)
+			python -B -m py_compile "$file" 2>&1|sed 's/^/python2: /';;
+		*python3*)
+			python3 -B -m py_compile "$file" 2>&1|sed 's/^/python3: /';;
+		*)
+			python -B -m py_compile "$file" 2>&1|sed 's/^/python2: /'&&
+			python3 -B -m py_compile "$file" 2>&1|sed 's/^/python3: /'
+		esac
+#		lab=`grep -l "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		test -z "$lab" && lab=`grep -l "^$filename_basename" $d/lab/*/autotest/PROGRAMS|sed 1q|sed 's?.*/tlb/??;s?/.*??'`
+#		if test -n "$lab"
+#		then
+#			program=`grep -h "^$filename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			test -z "$program" && program=`grep -h "^$filename_basename" $d/tlb/*/autotest/PROGRAMS|sed 1q`
+#			$script_dir/autotest --exercise "$lab" -programs "$program" --stdin <$file |grep -v passed
+#		fi
+		;;
+
+	*.sh)
+		bash -n "$file"
+
+		# check for old grep
+		grep -Hn '\bgrep' "$file"|sed 's/^/using grep instead of egrep:/'
+		;;
+
+	*/sol/ex?.php) ;;
+#	*/exam/*|*/assignments/*) continue ;;
+	*/tlb.html) continue ;; # seems to be a bug in tidy with a button inside a span
+	*) continue;;
+	esac
+	
+	case "$file" in
+	*/assignments/*/tests/*) ;;
+	*/assignments/*/examples/*) ;;
+	*)
+		# check for tabs or trailing white space
+		egrep -Hn $'\t| $' "$file"
+	esac
+done
+exit 0

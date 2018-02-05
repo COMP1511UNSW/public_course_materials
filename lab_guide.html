@@ -1,0 +1,91 @@
+{% extends "templates/base.html" %}
+{% block title %}
+{{course_code}} Lab Guide
+{% endblock %}
+
+{% block body_contents %}
+<h3>Lab Locations</h3>
+
+<p>
+{{course_code}} labs are held in Brass or Strings labs on level 3 of the J17 building
+</p>
+<p>
+CSE labs are spread over several buildings. Find your way to the labs with the <a href="http://taggi.cse.unsw.edu.au/FAQ/CSE_lab_map/">Map of the CSE labs</a>
+</p>
+
+<h3>Logging in</h3>
+
+<p>
+You are allocated a CSE account. Your CSE username is an alphanumeric name which is your zID for students starting uni in 2014 or a combination of your firstname lastname and random three digits at the end e.g. <em>abcd123</em>
+</p>
+
+<p>
+You log into your CSE account with your zID and zPass.
+</p>
+<p>
+The default desktop environment is Fluxbox. You may choose a different one by selecting a session on the Login Window. Fluxbox is a lightweight desktop environment. You may choose Gnome for a more user-friendly environment with point and click or drag,
+</p>
+
+<h3>Lab Environment</h3>
+
+The CSE labs use the Linux operating system rather than Windows or Macintosh.
+<p>There are two Terminal windows when you log in with Fluxbox. If there are none on your desktop, find the Terminal application from the menu (right-click for Fluxbox). You will be using the Terminal window to run Linux commands.
+</p>
+<p>
+To find out your CSE username type <em>whoami</em> or <em>acc</em> on a Terminal window.
+</p>
+
+<p>
+You will have a small amount of storage in your CSE home directory. You may bring a USB drive to uni to transfer your files to and from home. If you choose Gnome as your desktop environment, the file manager automatically detects the USB device.
+If you use Fluxbox, the following commands will mount,
+list the files stored and unmount or eject the USB device.
+<pre>
+priv usb mount 1
+ls /mnt/usb/1
+priv usb umount 1
+</pre>
+More information on using USB devices in the labs on the <a href="http://taggi.cse.unsw.edu.au/FAQ/USB_storage_on_CSE_Lab_Computers">CSE Taggi</a>
+
+<h3>Printing</h3>
+<ul>
+<li><a href="http://taggi.cse.unsw.edu.au/FAQ/Printing_from_CSE_labs/">Printing at CSE</a></li>
+<li><a href="https://www.it.unsw.edu.au/students/mps/index.html">Printing at UNSW</a></li>
+</ul>
+Although you can print material its better to work with the online version as far as possible.
+
+<h3>Submitting your lab work</h3>
+<p>
+The exact command to submit your lab work will be given to you each week.
+</p>
+In general, to submit work named <em>assignment</em>,
+<ul>
+<li>log into your CSE account</li>
+<li><em>cd</em> to the directory containing the files for <em>assignment</em></li>
+<li>type on a Terminal window the command<br>
+<em>give {{course_account}} assignment files...</em>
+</li>
+</ul>
+<p>
+It is good practice to check that your submission is accepted with this command:
+<em>~{{course_account}}/bin/classrun -check assignment</em>
+</p>
+<p>
+And finally to collect your marked submission, <em>~{{course_account}}/bin/classrun -collect assignment</em>
+</p>
+
+
+<h3>At the end of your class</h3>
+<ul>
+<li>Save your work. You should save your work at regular intervals anyway.</li>
+<li>Take out your USB device from the computer, especially if it contains private information or assignment work.</li>
+<li>Log off.</li>
+</ul>
+
+<h3>Other things you need to know</h3>
+<p>
+Your tutors email address is shown in the Course Timetable link. Append @cse.unsw.edu.au to your tutor's CSE username for the complete address.
+</p>
+<p>
+Official course communication will be send to your <a href="https://www.it.unsw.edu.au/students/zmail/index.html">zMail</a>.
+  
+{% endblock %}

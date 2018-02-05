@@ -1,0 +1,93 @@
+#!/usr/bin/env python3.5
+
+import os, re,stat, sys, getpass
+
+# if we are no running as a class account assume this
+# is a test installation on a non-public machine
+
+debug = sys.argv[1:]
+is_test_environment = not re.match(r'^cs\d\d\d\d', getpass.getuser())
+if debug:
+    print("is_test_environment=%s (user=%s)" % (is_test_environment, getpass.getuser()))
+
+for line in sys.stdin:
+    path = line.rstrip()
+    if path.startswith('./'):
+        path = path[2:]
+    try:
+        s = os.stat(path, follow_symlinks=False)
+    except FileNotFoundError:
+#        print('No such file or directory:', path, file=sys.stderr)
+        continue
+    needs_public = is_test_environment
+    needs_group = False
+    basename = os.path.basename(path)
+    extension = os.path.splitext(basename)[1]
+    path_components = path.split('/')
+    is_directory = False
+    if stat.S_ISDIR(s.st_mode):
+        is_directory = True
+        needs_execute = True
+        extension = ''
+        top_level_directory = path_components[0]
+    elif stat.S_ISREG(s.st_mode):
+        needs_execute = False 
+        if len(path_components) == 1:
+            top_level_directory = '.'
+        else:
+            top_level_directory = path_components[0]
+    else:
+        continue
+    if top_level_directory in ['work']:
+        continue
+    if basename in [
+        "random_test",
+        "automark_student",
+        "automark_assignment",
+        "calculate_automark",
+        "automark"
+        ]:
+        needs_public = True
+        needs_execute = True
+    if path in [
+        ]:
+        needs_public = True
+        needs_execute = True
+#    if re.match(r'assignments/trader_bot/', path):
+#        needs_public = True
+    if extension in ['.sh', '.py', '.pl', '.cgi']:
+        needs_execute = True
+    if extension in ['.cgi', '.pdf', '.tex', '.ps']:
+        needs_public = True
+    if top_level_directory in ['scripts']:
+        needs_execute = True
+        needs_public = True
+    if top_level_directory in ['distributed_files', 'home_computing', 'lec', 'lib', 'static', 'templates', 'code', 'seating', 'exam']:
+        needs_public = True
+    if top_level_directory in ['assignments']:
+        if extension not in ['.sh', '.py', '.pl']:
+            needs_public = True
+    if top_level_directory in ['cgi'] and is_directory:
+        needs_public = True
+    if top_level_directory in ['tlb', 'tutors']:
+        if extension == '.html' or basename == 'solutions':
+            # don't want public read on  html files in lab & tut because they may contain solutions
+            needs_group = True
+        else:
+            needs_public = True
+    if top_level_directory == '.':
+        if extension in ['.html'] or path == '.' or  basename.startswith('distributed'):
+            needs_public = True
+    if basename.startswith('htaccess'):
+        needs_public = True
+    if needs_public:
+        correct_mode = 0o755 if needs_execute else 0o644
+    elif needs_group:
+        correct_mode = 0o750 if needs_execute else 0o640
+    else:
+        correct_mode = 0o700 if needs_execute else 0o600
+    if debug:
+        print("top_level_directory='%s'" % (top_level_directory))
+        print("%s %o -> %o" % (path, s.st_mode & 0o777, correct_mode))
+    if s.st_mode & 0o777 != correct_mode:
+        os.chmod(path, correct_mode)

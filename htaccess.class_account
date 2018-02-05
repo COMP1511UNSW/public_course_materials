@@ -1,0 +1,97 @@
+AddCharset UTF-8 .html
+AddCharset UTF-8 .css
+AddCharset UTF-8 .js
+AddCharset UTF-8 .json
+AddCharset UTF-8 .c
+
+Header set X-Frame-Options "ALLOW-FROM https://webcms3.cse.unsw.edu.au/"
+
+<Limit GET POST PUT DELETE HEAD OPTIONS>
+    Order allow,deny
+    Allow from all
+</Limit>
+<LimitExcept GET POST PUT DELETE HEAD OPTIONS>
+    Order deny,allow
+    Deny from all
+</LimitExcept>
+
+<Files "flask.cgi">
+    SetHandler application/x-setuid-cgi
+</Files>
+
+# flask_tutors.cgi is a symlink to flask.cgi with access limited to tutors
+<Files "flask_tutors.cgi">
+    SetHandler application/x-setuid-cgi
+    <IfModule !mod_ssl.c>
+    	RedirectMatch /(.*)$ https://cgi.cse.unsw.edu.au/$1
+    </IfModule>
+    <IfModule mod_ssl.c>
+        Header set WWW-Authenticate "Basic realm=\"CSE Login (COMP1511 Staff Only)\""
+        AuthName "Access restricted to COMP1511 staff only! Use your CSE username and password."
+        AuthType basic
+        AuthYP On
+        SSLRequireSSL
+        order deny,allow
+        require group @COMP1511_Lecturer @COMP1511_Supervisor @COMP1511_Tutor @Lecturer
+        require user meicheng andrewt z3235399 z3410923 z3459896 z3460297 z5017081 z5028465 z5057844 z5059988 z5060214 z5061273 z5061930 z5062414 z5075439 z5076485 z5091650 z5112793 z5114986 z5116848 z5118607 z5055944 z5062711
+    </IfModule>
+</Files>
+
+#SetEnvIf Request_URI ^ BASE_URL=https://cgi.cse.unsw.edu.au/~cs1511
+SetEnvIf Request_URI ^ BASE_URL=/~cs1511
+
+# the tutors directory and other directories containing .py files which must run as CGI scripts
+# need htaccess files explicitly setting their type
+
+AddType text/plain c h pbm pl py sh
+<FilesMatch "\.(c|h|pbm|pl|py|sh)$">
+	forcetype text/plain
+</FilesMatch>
+
+RewriteEngine On
+
+# filesystem permissions should prevent these accesses too
+RedirectMatch 404 (/|^)(\.\.|.*.auto(test|marking)|\.git.*|scripts|work|htaccess\..*)(/|$)
+
+# Skip all remaining rewrites if already going to be served by flask_tutors.cgi
+
+RewriteRule ^flask_tutors\.cgi - [L]
+
+# the release to students of tut/lab questions/answers is indicated
+# by presence of file (e.g. tlb/04/lab_answers_released)
+# redirect access to unreleased questions/answers to
+# flask_tutors.cgi which is restricted to teaching staff
+# Note this catches any URL with this suffix
+
+# filesystem permissions prevent access to un-released solutions
+# this rewrite allows tutors access
+
+RewriteCond /web/cs1511/tlb/$3/$2_$4_released !-f
+RewriteRule ((tut|lab|test)/([0-9][0-9])/(questions|answers))$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+
+RewriteRule ^(notes/[0-9][0-9])$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+
+RewriteRule ^tutors_only$ %{ENV:BASE_URL}/flask_tutors.cgi [L]
+
+RewriteRule ^(submission/) %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
+
+# Skip all remaining rewrites if already going to be served by flask.cgi
+
+RewriteRule ^flask\.cgi - [L]
+
+# Specify somes case NOT to be served by flask
+
+RewriteRule ^(ClassRoll|CourseTimetable)\.html - [L]
+
+RewriteRule ^(cgi|doc|tutors) - [L]
+
+
+# for efficiency  serve these file types directly
+# no point compressing them & caching them via flask,
+# serving directly avoids CGI overhead
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.(jpg|png|pbm|zip|txt|pdf)$ - [L]
+
+# Send everything else to flask
+
+RewriteRule ^(.*) %{ENV:BASE_URL}/flask.cgi/$1

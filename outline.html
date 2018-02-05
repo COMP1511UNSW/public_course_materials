@@ -1,0 +1,452 @@
+{% extends "templates/base.html" %}
+{% block title %}
+Course Outline
+{% endblock %}
+
+{% block body_contents %}
+<h2>Course Details</h2>
+<table class="table table-condensed table-bordered">
+<tbody>
+<tr>
+    <td><strong>Course Codes</strong>
+    <td>{{course_code}}/{{postgraduate_course_code}}
+<tr>
+    <td><strong>Course Title</strong>
+    <td>{{course_name}}
+<tr>
+    <td><strong>Units of Credit</strong>
+    <td>6
+<tr>
+    <td><strong>Course Website</strong>
+    <td><a href="http://cse.unsw.edu.au/~{{course_account}}">http://cse.unsw.edu.au/~{{course_account}}</a>
+<tr>
+    <td><strong>Handbook</strong>
+    <td><a href="http://www.handbook.unsw.edu.au/undergraduate/courses/current/{{course_code}}.html">{{course_code}}</a>
+
+<tr>
+    <td><strong>Lecturer/Convener/Admin</strong>
+    <td>Andrew Taylor <code>andrewt@unsw.edu.au</code>
+<tr>
+    <td rowspan=2><strong>Lectures</strong>
+    <td>Wednesday 16:00-18:00 <a href="https://maps.google.com/?q=-33.917204000000%2C151.227960000000">Law Theatre G04</a>
+<tr>
+    <td>Friday 14:00-16:00 <a href="https://maps.google.com/?q=-33.917272000000%2C151.232478000000">Central Lecture Block 7</a>
+
+<tr>
+    <td rowspan=2><strong>Lectures</strong>
+    <td>Tuesday 13:00-13:00 (
+    	Stream A: <a href="https://maps.google.com/?q=-33.917272000000%2C151.232478000000">Central Lecture Block 7</a>,
+    	Stream B: <a href="https://maps.google.com/?q=-33.917161000000%2C151.233983000000">Mathews Theatre A</a>)
+    	Stream C: <a href="https://maps.google.com/?q=-33.917161000000%2C151.233983000000">Mathews Theatre B</a>)
+	)
+<tr>
+    <td>Wednesday 14:00-16:00 (
+    	Stream A: <a href="https://maps.google.com/?q=-33.917272000000%2C151.232478000000">Central Lecture Block 7</a>
+    	Stream B: <a href="https://maps.google.com/?q=-33.917161000000%2C151.233983000000">Mathews Theatre A</a>)
+		Stream C: <a href="https://maps.google.com/?q=-33.917161000000%2C151.233983000000">Mathews Theatre B</a>)
+	)
+	
+<tr>
+    <td><strong>Tut-lab</strong>
+    <td>3 hour slot selected when you enrol (weeks 1-13)
+
+</tbody>
+</table>
+
+<h2>Lecture Recordings</h2>
+
+All lectures will be recorded.  Unfortunately UNSW's lecture recording system can only
+be accessed via <a href="{{lecture_recordings_url}}">Moodle</a>
+Moodle will not be used for any other course activities.
+
+<h2>Online Stream</h2>
+
+An online (WEB) stream is available.
+Students in this stream are welcome to attend lectures <b>if</b> there are spare seats in the lecture theatre.
+In past sessions there have been spare seats after week 1.
+Students in the WEB stream may need to rely on lecture recordings and the material
+placed on the web and should consider carefully whether this is sufficient
+for them to successfully complete the course.
+
+<h2>Communication with Course Staff</h2>
+
+Sometimes urgent information may be sent to you by email.
+Make sure you pay careful attention to any email you receive.
+<p>
+All official email will be sent to your UNSW email address.
+It's essential you read this email address regularly.
+If you forward your email, please be careful to do so correctly & test the forwarding.
+<p>
+Additional information will be provided in the <a href="{{course_forum_url}}">Course Forum</a>.
+You should check the course regularly.
+It is the best place to ask questions about the course.
+
+
+<p>
+Consultations times vary through session and are listed on the course home page.
+
+The forums is the best place to ask questions about the course.
+
+<h2>Prerequisites/Background Knowledge</h2>
+
+{{course_code}} has no prerequisites, and assumes no background knowledge.
+
+<h2>Course Summary</h2>
+
+This course introduces students to the basics of programming.
+Topics covered include:
+<p>
+<ul>
+     <li>fundamental programming concepts
+     <li>the C programming language and use of a C compiler
+     <li>programming style
+     <li>program design and organisation concepts
+     <li>program testing and debugging
+</ul>
+
+
+<h2>Course Aims</h2>
+
+The course aims for students to become proficient in programming using a high level language, C.
+By the end of the course, students should be able to construct C programs to solve problems.
+
+<h2>Course Learning Outcomes</h2>
+
+<ul>
+<li>
+understand the core syntax & semantics of the C programming language including types, I/O, arrays, functions, pointers, structs, file manipulation  and dynamic memory allocation
+
+<li>
+given a problem, solve it by proficiently constructing (designing, testing, debugging) a secure, reliable and correct C program
+
+<li>
+understand & employ fundamental data structures including stacks, queues, linked lists and binary trees
+
+<li>
+use Linux and Unix-like operating systems to develop and test software
+</ul>
+
+<h2>{{course_code}} versus COMP1911</h2>
+
+{{course_code}} is designed for computer science majors, and for any student
+with a keen interest in computing, regardless of their degree program.
+<p>
+COMP1911 is for students who are not computer science majors.
+COMP1911 covers a subset of the material in {{course_code}} and moves at a more gentle pace.
+<p>
+If you are a computer science major, you must take {{course_code}}
+<p>
+If you are not a computer science major, but have an interest in computer science and think you may take further COMP courses,
+you also should enrol in  {{course_code}}
+<p>
+And if  you have previous programming experience -  <b> and enjoyed it </b> - choose {{course_code}}
+<p>
+If you are not in a program which requires {{course_code}} and are thinking of switching to COMP1911,
+it's best to make the  decision in week 1.  If you do swap to COMP1911 but discover that you enjoy computing and wish to take
+further COMP courses, you can take a bridging course in the mid-year break, which will cover the material in {{course_code}} which is not covered in COMP1911.
+
+<h2>Course Schedule</h2>
+
+<table class="table table-striped table-bordered">
+<tr>
+<td>Week 1
+<td>
+    Course Introduction, Introduction to Linux &amp; Shell, Compiling and Running C Programs
+<br>Data Types, Variables, Simple I/O with print and scanf  Arithmetic expressions,
+<tr>
+<td>Week 2
+<td>
+    If statements,
+    Boolean Expressions,
+    Loops
+<tr><td>Week 3
+<td>
+    Nested Loops,
+    Arrays
+<tr>
+<td>Week 4<td>
+    Characters & Strings,
+    Command Line Arguments
+<tr>
+<td>Week 5<td>
+    Functions,
+    Multi-file Programs,
+<tr>
+<td>Week 6<td>
+    Reading & Writing Files
+<tr><td>Week 7<td>
+    Pointers
+    Dynamic memory allocation (malloc)
+    Variable Scope & lifetime,
+<tr><td><td>
+    Mid Semester Break
+<tr><td>Week 8<td>
+    Searching
+    Sorting
+    Introduction to Complexity
+<tr><td>Week 9<td>
+    <b>Assignment 1</b> due
+<br>    Introduction to version control,
+    Structs
+    Abstract data types &amp; Interfaces,
+    Linked Lists
+<tr><td>Week 10<td>
+    Stacks and Queues,
+<tr><td>Week 11<td>
+     C implementation memory models,
+    Invalid C & Security (buffer overflow & other issues)
+    Professionalism, Codes of Conduct, Ethics for Programmers
+<tr><td>Week 12<td>
+    Revision,
+    Exam preparation
+    <br><b>Assignment 2</b> due
+<tr><td>Week 13<td>
+<tr><td>Exam Period<td>
+    <b>Final Exam</b>
+</table>
+
+Topics including development approaches, programming style, testing, debugging strategies
+and ethics will be discussed though the course as they arise.
+
+<h2>Teaching Rationale</h2>
+
+This course has a heavy practical orientation.  Lectures will revolve
+around live demonstrations of programming and use of tools.
+Labs and assignments form a key part.
+
+<h2>Teaching Strategies</h2>
+
+<h3>Lectures</h3>
+
+Lectures will be used to present the theory and
+practice of the techniques and tools in this course. There will be
+extensive use of  practical demonstrations during
+lectures. Lecture notes will be available on the course web pages
+before each lecture.
+
+<h3>Tutorials</h3>
+
+From week 1 you will also be expected to attend a one-hour tutorial
+session to clarify ideas from lectures and work through exercises
+based on the lecture material. You should make sure that you use them
+effectively by examining in advance the material to be covered in each
+week's tutorial, by asking questions, by offering suggestions and by generally
+participating. The tutorial questions will be posted on the Web in the
+week before each tutorial.  There are no marks for tutorial attendance.
+
+<h3>Laboratory Classes</h3>
+
+Following the tutorial class each week, there will be a two-hour laboratory class,
+during which you will work on a variety of small practical problems
+involving the tools introduced in lectures.
+Because this course is practical in nature, laboratory classes are a very
+important component. If you do not put a great deal of effort into the lab classes
+you risk failing the final exam.
+<p>
+Each week, there will be several exercises to work on. These exercises will be released in the week preceding the lab class. Lab exercises will be done in pairs, and you and you partner should discuss the exercises before going to the lab, to maximise the usefulness of the class. The exercises will need to be submitted (for our records) and will be assessed byyour tutor. During the lab, your tutor will provide feedback on your approach to the problem and on the style of your solution.
+<p>
+Tutors  will facilitate you forming pairs in your week 1 lab (which is not assessed).
+The pairs will change several times during session.
+<p>
+Starting week 3, pairs will also be asked to do code reviews in the tutorials, to explain how they tackled a particular problem and describe interesting features of their solution.
+<p>
+{% include 'lab_assessment_text.html' %}
+
+
+<h3>Assignments</h3>
+
+There are two assessable programming assignments. Assignments give you the chance to practice what you have learnt on relatively large problems (compared to the small exercises in the labs). Assignments are a very important part of this course, therefore it is essential that you attempt them yourself.
+<p>
+<ul>
+<li>Assignment 1 (Submission, Week 8)   15%
+<li>Assignment 2 (Submission, Week 12)  15%
+</ul>
+<p>
+The assignment weighting and deadlines may be slightly varied when the assignment designs are complete.
+<p>
+Late assignments submissions will be penalized.  The exact penalty will be
+specified in the assignment specification - often it is 2% reduction in maximum
+mark for every hour late.
+
+
+<h3>Final Exam</h3>
+
+There will be a three-hour primarily practical exam, to be held in the CSE labs
+during the exam period.  This will be centrally timetabled and appear
+in your UNSW exam timetable.
+<p>
+It will contain implementation tasks which will require you to write C programs.
+It will also contain sections which require you to read code or answer questions.
+<p>
+During this exam you will be able to execute, debug and test your answers.
+The implementation tasks will be similar to those encountered in lab exercises
+
+<h3>Exam Hurdle Requirements</h3>
+
+{{course_code}} has two hurdle requirements on the final exam.
+
+Hurdle Requirement #1: on the final exam you must
+solve a task by writing a program that uses a an <b>array</b>.
+The final exam will contain multiple questions (clearly marked)
+which if answered successfully meet this hurdle requirement.
+Answering any one of these questions will meet this hurdle requirements.
+<p>
+Hurdle Requirement #2: on the final exam you must
+solve a task by writing a program that uses a <b>linked lists</b>.
+The final exam will contain multiple questions (clearly marked)
+which if answered successfully meet this hurdle requirement.
+Answering any one of these questions will meet this hurdle requirements.
+<p>
+You can not pass {{course_code}} unless you achieve both the above hurdles.
+However will be offered an additional chance to pass the hurdles in
+the supplementary exam, if you achieve a mark of 50+ but do not pass both hurdles.
+
+
+<h3>Weekly Coding Tests</h3>
+
+There will be weekly coding tests from weeks 3-12 designed to give you timely &amp; realistic feedback
+of your understanding of the course material.
+<p>
+These will be conducted in your own time under self-enforced exam-like conditions.
+<p>
+Each tests will specify the conditions but typically these will include
+<p>
+<ol>
+<li> No assistance from any person.
+<li> A time limit (probably 1 hour).
+<li> No access to materials (written or online) except specified language documentation or man pages.
+</ol>
+<p>
+Each coding test will be automatically marked.  There will be partial marks for attempts which do not
+pass automatic tests. Here is an indicative guide:
+<p>
+<table class="table table-bordered table-condensed  table-striped" style="width:50%;">
+<tr><td>Passes all automatic tests.<td>1/1
+<tr><td>Fails several automatic tests.<td>0.75/1
+<tr><td>otherwise<td>0.5/1
+</table>
+<p>
+Your mark for the coding test component will be the sum of your best 8 of 10 test marks.
+<p>
+Any deliberate violation of the test conditions will results in a mark of zero
+for the entire programming test component.
+
+
+<h2>Assessment</h2>
+
+<table class="table table-bordered table-condensed  table-striped">
+<tr><th>Component<th>Weight
+<tr><td>Lab Work<td>12%
+<tr><td>Weekly Tests<td>8%
+<tr><td>Assignments<td>30%
+<tr><td>Final Exam  (everything - exam period)<td>50%
+</table>
+
+<h2>Supplementary Assessment</h2>
+
+Students will be offered a supplementary exam if they miss the original
+exam due to (documented) illness or misadventure.
+<p>
+Students who will be automatically offered supplementary assessment if
+they achieve a final mark of 50+ but fail to meet the hurdle requirement,
+if they  have attended 9+ labs and have made reasonable
+attempts on both assignments (achieving > 50%)
+<p>
+Students with final marks in the range 40-49 (whether they have met the hurdle requirement
+or not) will also be offered supplementary assessment
+if they  have attended 9+ labs and have made reasonable
+attempts on both assignments (achieving > 50%)
+<p>
+The supplementary exam is tentatively scheduled for Thursday 20 July - it is your
+responsibility to be in Sydney and  available for the supplementary exam around that date.
+No alternative will be offered.
+
+<h2>Student Conduct</h2>
+
+The Student Code of Conduct (<a href="https://student.unsw.edu.au/conduct">Information</a>, <a href="https://www.gs.unsw.edu.au/policy/documents/studentcodepolicy.pdf">Policy</a>) sets out what the University expects from students as members of the UNSW community. As well as the learning, teaching and research environment, the University aims to provide an environment that enables students to achieve their full potential and to provide an experience consistent with the University's values and guiding principles. A condition of enrolment is that students inform themselves of the University's rules and policies affecting them, and conduct themselves accordingly.
+<p>
+In particular, students have the responsibility to observe standards of equity and respect in dealing with every member of the University community. This applies to all activities on UNSW premises and all external activities related to study and research. This includes behaviour in person as well as behaviour on social media, for example Facebook groups set up for the purpose of discussing UNSW courses or course work. Behaviour that is considered in breach of the Student Code Policy as discriminatory, sexually inappropriate, bullying, harassing, invading another's privacy or causing any person to fear for their personal safety is serious misconduct and can lead to severe penalties, including suspension or exclusion from UNSW.
+<p>
+If you have any concerns, you may raise them with your lecturer, or approach the <a href="ethics-officer@cse.unsw.edu.au">School Ethics Officer</a>, <a href="grievance-officer@cse.unsw.edu.au">Grievance Officer</a>, or one of the student representatives.
+
+
+<b>All work submitted for assessment must be your own work.</b>
+<p>
+Lab exercises must be completed by you and your partner.
+<p>
+Assignments must be completed <em>individually</em>.
+<p>
+Submission of other people's work as your own (plagiarism) has a major impact on learning
+so we use plagiarism detection software to search for multiply-submitted work.
+<p>
+Please note:
+<p>
+<ul>
+<li>
+Submitting part or all of other students' work, with or without acknowledgement, is not acceptable.
+<li>
+Submitting work written even partly by another person is also not acceptable.
+<li>
+Building on ideas and code snippets obtained from public sources, e.g. Stack Overflow, is acceptable (unless the assignment/lab forbids this)  provided full acknowledgement of their resources is made.
+<li>
+Discussing approaches to exercises and assignments with other students is quite appropriate, but any discussions should remain at the design level, and must not include program text. Comparison tools will detect any common code across the student body.
+<li>
+The safest approach is to work diligently on your own, seeking help from the forum or course staff.
+</ul>
+<p>
+<UL>
+<LI>
+Submission of work derived from another person, or jointly written with someone else will result in
+loss of marks and your name being entered on UNSW's plagiarism register.
+This loss of marks often results in the student failing the course.
+<LI>
+Providing your work to another person will also result in the loss of marks
+and your name being entered on UNSW's plagiarism register.
+Do not provide your work to any other person, even people who are not UNSW students.
+You will be held responsible for the actions of anyone you provide your work to.
+<LI>
+Severe or second offences may result in automatic failure or exclusion from UNSW.
+</UL>
+<P>
+Make sure you read:
+<ul>
+<li> the Learning Centre's <a href="https://student.unsw.edu.au/plagiarism">explanation of plagiarism</a>.
+<li> <a href="https://www.gs.unsw.edu.au/policy/documents/plagiarismprocedure.pdf">UNSW's policy regarding academic honesty and plagiarism</a>
+</ul>
+
+
+<h2>Course evaluation and development</h2>
+
+Student feedback on this course will be obtained via electronic survey at the end of session, and will be used to make continual improvements to the course. Students are also encouraged to provide informal feedback during the session, and to let the lecturer in charge know of any problems, as soon as they arise. Suggestions will be listened to very openly, positively, constructively and thankfully, and every reasonable effort will be made to address them.
+<p>
+This feedback is used to improve the course materials & their delivery.
+In the most recent session feedback was very favourable probably as results of changes based on previous session's feedback.
+Some lab exercises and lecture topics will be updated
+to better reflect current practice.
+<p>
+<h2>Other matters</h2>
+<ul>
+<li><a href="http://www.hr.unsw.edu.au/ohswc/ohs/ohs_policies.html">Occupational Health and Safety policies</a>
+<li><a href="http://www.studentequity.unsw.edu.au/">Information for students with disabilities</a>
+Contact the lecturer ASAP if you have any disabilities that may affect this course.
+</ul>
+
+<h2>Course Evaluation and Development </h2>
+
+Every semester, {{course_code}} student feedback is requested in a survey at the end of this course
+using UNSW's myExperience online survey system.
+<p>
+This feedback is used to improve the course materials and their delivery.
+<p>
+Feedback from surveys for COMP1511's predecessor COMP1917  has resulted in major changes being
+to COMP1511 structure, assessment and delivery.
+
+<h2>Resources for Students</h2>
+
+<a href="http://www.studentequity.unsw.edu.au/">Information for students with disabilities</a>
+Talk to  the lecturer  if you have any disabilities that may affect this course.
+<p>
+The optional textbook for the course is:
+<a href="http://www.bookshop.unsw.edu.au/details.cgi?ITEMNO=9781486010974">Programming, Problem Solving, and Abstraction with C by Alistair Moffat</a>,
+
+{% endblock %}

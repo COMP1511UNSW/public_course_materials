@@ -1,0 +1,5 @@
+#!/bin/sh
+. $(dirname $(readlink -f $0))/config.sh
+check_commited_files || exit 1
+build
+exit 0

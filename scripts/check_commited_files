@@ -1,0 +1,48 @@
+#!/bin/bash
+. $(dirname $(readlink -f $0))/config.sh
+cd $public_html_session_directory/private || exit 1
+
+modified_and_staged=`git status --porcelain|grep '^MM'`
+if test -n "$modified_and_staged"
+then
+	echo "These files won't be checked because staged file differs from file on disk "
+	echo "$modified_and_staged"
+	exit 1
+fi
+
+check_output_tmpfile=/tmp/build.check_output$$ 
+touch $check_output_tmpfile
+chmod 600 $check_output_tmpfile
+
+git status --porcelain |grep '^M '|
+while read status file
+do
+	# remove  tabs and trailing spaces from C & html files
+	case "$file" in
+	*/scripts/*) ;;
+	*/assignments/*/tests/*) ;;
+	*/assignments/*/examples/*) ;;
+	*.c|*.html|*.py|*.pl|*.sh|*.cgi)
+		if egrep -q '	| $' "$file"
+		then
+			tmpfile=/tmp/check_course_file.expand$$ 
+			touch $tmpfile &&
+			chmod 600 $tmpfile  &&
+			expand -t 4 "$file" |sed 's/ *$//' >$tmpfile &&
+			cp $tmpfile "$file" &&
+			git add "$file"
+			rm -f $tmpfile
+		fi
+	esac
+	check_course_file "$file" 2>&1
+done|tee $check_output_tmpfile
+
+if test -s "$check_output_tmpfile"
+then
+	echo "Files failed checks in $script_dir/check_course_file"
+	rm "$check_output_tmpfile"
+	exit 1
+else
+	rm -f "$check_output_tmpfile"
+	exit 0
+fi
