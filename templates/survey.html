@@ -1,0 +1,48 @@
+{% extends "templates/base.html" %}
+
+{% block title %}
+Survey
+{% endblock %}
+
+{% block body_contents %}
+
+{% block prefix %}
+{% endblock %}
+
+
+<hr class="thick_hr">
+{% if message %}
+<b>{{message}}</b>
+{% endif %}
+<p>
+Change your preference to:
+
+<form method="POST">
+<div class="btn-group" data-toggle="buttons">
+
+{% for (value, description) in options %}
+<label class="radio-inline">
+    <input
+        type="radio"
+        name="preference"
+        value="{{value}}"
+        {% if value == preference %}
+        checked
+        {% endif %}
+    >
+    {{description}}
+</label>
+<br>
+{% endfor %}
+
+</div>
+<p>
+<p>
+<input class="btn btn-primary" type="submit" value="Save">
+</form>
+<hr class="thick_hr">
+
+{% block suffix %}
+{% endblock %}
+
+{% endblock %}

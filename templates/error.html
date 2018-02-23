@@ -1,0 +1,23 @@
+{% extends "templates/base.html" %}
+
+{% block title %}
+Internal Error
+{% endblock %}
+
+{% block body_contents %}
+
+An internal error has occurred in the <a href="{{ canonical_url }}">{{course_code}} website</a> .
+
+Page not found on the {{course_code}} website.
+<p>
+If you think the URL you've used should work,
+please post a message in the <a href="{{course_forum_url}}">course forum</a> and we'll fix it as soon as we can.
+<p>
+Please include the text below to help us fix the error.
+
+<pre>
+{{error_message}}
+
+{{backtrace}}
+</pre>
+{% endblock %}

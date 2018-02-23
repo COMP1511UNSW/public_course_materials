@@ -1,0 +1,27 @@
+{% extends "templates/base.html" %}
+{% block title %}
+Not available: {{course_code}} Week {{week}} {{full_name[tut_or_lab]['self']}} {{full_name[tut_or_lab][questions_or_answers]}}
+{% endblock %}
+
+{% block body_contents %}
+
+Week {{week}} {{full_name[tut_or_lab]['self']}} {{full_name[tut_or_lab][questions_or_answers]}} don't seem to have been released.  Here is a list of what has been released:
+
+<br>Tut Questions:
+{% for week in tlb_list['tut']['questions']['released'] %}
+<a HREF="{{url_root}}tut/{{week}}/questions">{{week}}</a>
+{% endfor %}
+<br>Tut Solutions:
+{% for week in tlb_list['tut']['answers']['released'] %}
+<a HREF="{{url_root}}tut/{{week}}/answers">{{week}}</a>
+{% endfor %}
+<br>Lab Exercises:
+{% for week in tlb_list['lab']['questions']['released'] %}
+<a HREF="{{url_root}}lab/{{week}}/questions">{{week}}</a>
+{% endfor %}
+<br>Lab Solutions:
+{% for week in tlb_list['lab']['answers']['released'] %}
+<a HREF="{{url_root}}lab/{{week}}/answers">{{week}}</a>
+{% endfor %}
+</div>
+{% endblock %}

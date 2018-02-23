@@ -1,0 +1,253 @@
+{% extends "templates/base.html" %}
+
+{% block title %}
+{{course_code_regex}} {{course_name}}
+{% endblock %}
+
+{% macro display_code_files(topic, list) -%}
+    {% for code_file in list %}
+        {% set pathname = os.path.join('code', topic, code_file) %}
+        <hr class="thin_hr">
+        <div class="code_example">
+            <div class="example_link">
+                {{lecture_topics[topic]}} example: <a target="source" href="{{url_root}}{{pathname}}">{{code_file}}</a>{% if code_files[topic][code_file] %} ({{code_files[topic][code_file]}} lecture){% endif %}
+            </div>
+            <div class="header_comment">
+                {% autoescape false %}
+                    {{ read_code(pathname, header_only=True) }}
+                {% endautoescape %}
+            </div>
+            <pre class="program" style="max-height: 16em;overflow:  auto;">
+{{ read_code(pathname, body_only=True) }}</pre>
+
+            {{edit_github(pathname)}}
+
+        </div>
+    {% endfor %}
+{%- endmacro %}
+
+{% block body_contents %}
+
+
+<hr class="thick_hr">
+<h2>{{course_code_regex}} Course Resources</h2>
+<a href="{{url_root}}outline.html">Course Outline</a>
+&emsp;<a href="{{lecture_recordings_url}}">Lecture recordings</a>
+&emsp;<a href="{{course_forum_url}}">Course Forum</a>
+&emsp;<a href="{{url_root}}CourseTimetable.html">Course Timetable</a>
+&emsp;Home computing: <a href="{{url_root}}home_computing/vlab.html">vlab</a>
+
+&emsp;Handbook
+<a href="http://www.handbook.unsw.edu.au/undergraduate/courses/current/{{course_code}}.html">{{course_code}}</a>
+<hr class="thick_hr">
+<p>
+
+{#############################}
+
+<h2>{{course_code_regex}} Week-by-Week</h2>
+<ul class="nav nav-tabs">
+
+{% for week in weeks %}
+    <li {% if week == current_week %}class="active"{% endif %}><a data-toggle="tab" href="#week{{week}}">Week {{week.lstrip('0')}}</a></li>
+{% endfor %}
+
+</ul>
+<p>
+<p>
+
+<div class="tab-content">
+{% for week in weeks %}
+    <div class="tab-pane{% if week == current_week %} active{% endif %}" id="week{{week}}">
+    <p>
+    <p>
+    <b>Week {{week.lstrip('0')}}</b>
+
+    {% for tut_or_lab_or_test in ['tut', 'lab', 'test'] %}
+        {% if week in tlb_list[tut_or_lab_or_test]['questions']['released'] %}
+            <b>&emsp;{{full_name[tut_or_lab_or_test]['self']}}:</b>
+            <a href="{{url_root}}{{tut_or_lab_or_test}}/{{week}}/questions">{{full_name[tut_or_lab_or_test]['questions']}}</a>
+            {% if week in tlb_list[tut_or_lab_or_test]['answers']['released'] %}
+                &amp; <a href="{{url_root}}{{tut_or_lab_or_test}}/{{week}}/answers">{{full_name[tut_or_lab_or_test]['answers']}}</a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if is_tutor %}
+    <b>&emsp;Tutors:</b> <a href="{{url_root}}notes/{{week}}">notes</a>
+    {% endif %}
+
+    {% for day in ('wed', 'fri') %}
+        {% if lecture_details[week][day] %}
+            <p><b>{{lecture_details[week][day]['full_day_date']}} lecture topics:</b>
+            {% for topic in lecture_details[week][day]['topics'] %}
+                &emsp;<a data-toggle="tab" href="#topic_{{topic}}" onclick="$('html,body').animate({scrollTop: $('#control_{{topic}}').offset().top},'slow');$('#control_{{topic}}').trigger('click')">{{lecture_topics[topic]}}</a>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    {% for day in ('wed', 'fri') %}
+        {% if lecture_details[week][day] %}
+            {% for (topic, key_examples) in lecture_details[week][day]['topics'].items() %}
+                {{display_code_files(topic, key_examples) }}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    </div>
+{% endfor %}
+</div>
+
+
+{##########################################################}
+
+
+<hr class="thick_hr">
+<h2>{{course_code_regex}} Topic-by-Topic</h2>
+<ul class="nav nav-tabs">
+{% for (topic,topic_full_name) in lecture_topics.items() %}
+    <li {% if topic == current_lecture_topic %}class="active"{% endif %}><a data-toggle="tab" href="#topic_{{topic}}" id="control_{{topic}}">{{topic_full_name}}</a></li>
+{% endfor %}
+</ul>
+
+<div class="tab-content">
+    {% for (topic,topic_full_name) in lecture_topics.items() %}
+        <div class="tab-pane{% if  topic == current_lecture_topic %} active{% endif %}" id="topic_{{topic}}">
+            <p>
+            <b>{{topic_full_name}}:</b>
+            &emsp;<a href="{{url_root}}lec/{{topic}}/slides">lecture slides</a>
+            &emsp;<a href="{{url_root}}lec/{{topic}}/notes">lecture notes</a>
+
+            {% if os.path.exists("/code/"+topic) %}
+                &emsp;<a href="{{url_root}}code/{{topic}}/index">example programs</a>
+            {% endif %}
+
+            {% for tab_html in glob.glob(os.path.join(public_html_directory, 'code', topic, "*_tab.html")) %}
+                {% set full_page_html = re.sub('_tab.html$', '.html', tab_html) %}
+                {% if os.path.exists(full_page_html) %}
+                    {% set basename = os.path.basename(full_page_html) %}
+                    &emsp;
+                    <a href="{{url_root}}code/{{topic}}/{{basename}}">
+                        {{ re.sub('.html$', '' ,basename).replace('_', ' ').title() }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% set extra_html = os.path.join('code', topic, 'extra.html') %}
+            {% if os.path.exists(extra_html) %}
+                <br>
+                {% include extra_html %}
+            {% endif %}
+
+            {% set resources_html = os.path.join('code', topic, 'external_resources.html') %}
+            {% if os.path.exists(resources_html) %}
+                <br>
+                <b>External resources:</b>
+                {% include resources_html %}
+            {% endif %}
+
+            {% if glob.glob(os.path.join(public_html_directory, 'code', topic, "*_tab.html")) %}
+            <p>
+            <ul class="nav nav-tabs">
+                 <li class="active">
+                    <a data-toggle="tab" href="#programs">Programs</a>
+                 </li>
+                {% for tab_html in glob.glob(os.path.join(public_html_directory, 'code', topic, "*_tab.html")) %}
+                    {% set tab = re.sub('_tab.html$', '', os.path.basename(tab_html)) %}
+                    <li>
+                        <a data-toggle="tab" href="#tab_{{tab}}">
+                            {{tab.replace('_', ' ').title()}}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+            <div class="tab-pane active" id="programs">
+                    {{display_code_files(topic, code_files[topic]) }}
+            </div>
+            {% for tab_html in glob.glob(os.path.join(public_html_directory, 'code', topic, "*_tab.html")) %}
+                {% set tab = re.sub('_tab.html$', '', os.path.basename(tab_html)) %}
+                <div class="tab-pane" id="tab_{{tab}}">
+                {% include 'code/' + topic + '/' + tab + '_tab.html' %}
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            {{ display_code_files(topic, code_files[topic]) }}
+        {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{#############################}
+
+
+<hr class="thick_hr">
+<h2>{{course_code_regex}} All Links</h2>
+
+{% for tut_or_lab in ['tut', 'lab', 'test'] %}
+    {% for questions_or_answers in ['questions', 'answers'] %}
+        <br>All {{full_name[tut_or_lab]['self']}} {{full_name[tut_or_lab][questions_or_answers]}}:
+            {% for week in tlb_list[tut_or_lab][questions_or_answers]['released'] %}
+                <a href="{{url_root}}{{tut_or_lab}}/{{week}}/{{questions_or_answers}}">{{week}}</a>
+            {% endfor %}
+        {% if is_tutor and tlb_list[tut_or_lab][questions_or_answers]['unreleased'] %}
+            unreleased
+            {% for week in tlb_list[tut_or_lab][questions_or_answers]['unreleased'] %}
+                <a href="{{url_root}}{{tut_or_lab}}/{{week}}/{{questions_or_answers}}">{{week}}</a>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{% if is_tutor %}
+<br>All Tutor's notes
+{% for week in tlb_list['notes'] %}
+    <a href="{{url_root}}notes/{{week}}">{{week}}</a>
+{% endfor %}
+{% endif %}
+
+{% for (topic,topic_full_name) in lecture_topics.items() %}
+    <br> {{ topic_full_name }}
+    <a href="{{url_root}}lec/{{topic}}/slides">slides</a>
+    <a href="{{url_root}}lec/{{topic}}/notes">notes</a>
+    {% if os.path.exists("/code/"+topic) %}
+        &emsp;<a href="{{url_root}}code/{{topic}}/index">example programs</a>
+    {% endif %}
+
+    {% for tab_html in glob.glob(os.path.join(public_html_directory, 'code', topic, "*_tab.html")) %}
+        {% set full_page_html = re.sub('_tab.html$', '.html', tab_html) %}
+        {% if os.path.exists(full_page_html) %}
+            {% set basename = os.path.basename(full_page_html) %}
+            &emsp;
+            <a href="{{url_root}}code/{{topic}}/{{basename}}">
+                {{ re.sub('.html$', '' ,basename).replace('_', ' ').title() }}
+            </a>
+        {% endif %}
+    {% endfor %}
+    {% set extra_html = os.path.join('code', topic, 'extra.html') %}
+    {% if os.path.exists(extra_html) %}
+        &emsp;
+        &emsp;
+        {% include extra_html %}
+    {% endif %}
+    {% set resources_html = os.path.join('code', topic, 'external_resources.html') %}
+    {% if os.path.exists(resources_html) %}
+        &emsp;
+        &emsp;
+        {% include resources_html %}
+    {% endif %}
+{% endfor %}
+
+{#
+<a href="CourseTimetable.html">Timetable</a>
+<br>Lab:
+<a href="lab_guide.html">Guide</a>
+<a href="lab_assessment.html">Assessment</a>
+
+<br>Home computing:
+<a href="home_computing/docker.html">Docker</a>
+<a href="home_computing/windows.html">Windows</a>
+<a href="home_computing/mac.html">Mac</a>
+
+#}
+
+{% endblock %}

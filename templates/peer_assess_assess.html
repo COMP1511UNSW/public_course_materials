@@ -1,0 +1,168 @@
+{% extends "templates/base.html" %}
+{% block title %}
+{{course_code}} - Peer Assessment - {{unsw_session}}
+{% endblock %}
+{% block body %}
+<script>
+function get_assessee() {
+    var assessee = $("#assessee option:selected").addClass("assessed").text();
+    assessee = assessee.replace(/ .*/, '');
+    return assessee;
+}
+
+function set_grade(button, grade) {
+    console.log("set_grade " +grade);
+    button.addClass("btn-success");
+    button.html(grade + ' <span class="caret"></span>');
+}
+
+function clear_grade(button) {
+    var question = button.attr("name");
+    console.log("clear_grade " + question);
+    button.removeClass("btn-success");
+    button.html('<span class="caret"></span>');
+}
+
+function clear_all_buttons() {
+    $('.assessment_button').each(function() {
+        clear_grade($(this));
+    });
+}
+
+$(document).ready(function() {
+    $(".dropdown-menu li a").click(function(){
+        var grade = $(this).text();
+        grade = grade.replace(/ .*/, '');
+        var button = $(this).closest('div').find('button[data-toggle="dropdown"]');
+        var question = button.attr("name");
+        console.log("dropdown " + question + " "+question);
+        $.ajax({
+                type: "PUT",
+                url:  get_assessee() + '/' + question + '/' + grade,
+                async: false,
+                success:function(response) {
+                    if (/^Save/.test(response)) {
+                        set_grade(button, grade);
+                    } else if (/^Clear/.test(response)) {
+                        clear_grade(button);
+                   }
+               }});
+    });
+    $("#clear_all_assessments").click(function(){
+        $.ajax({
+                type: "DELETE",
+                url:  get_assessee(),
+                async: false,
+                success:function(response) {
+                   if (/^Clear/.test(response)) {
+                        clear_all_buttons()
+                    }
+               }});
+    });
+    $("#assessee").on('change', function() {
+        var assessee = get_assessee();
+        if (!assessee) {
+            clear_all_buttons()
+            return;
+        }
+        $.ajax({
+            type: "GET",
+            url:  assessee,
+            async: false,
+            dataType: "json",
+            success:function(response) {
+                // console.log(assessee+ " -> "+response);
+                $('.assessment_button').each(function() {
+                    var button = $(this);
+                    var question = button.attr("name");
+                    var grade = response[question];
+                    if (grade) {
+                        set_grade(button, grade);
+                    } else {
+                        clear_grade(button, grade);
+                    }
+                });
+            }});
+    });
+})
+</script>
+<style type="text/css">
+.assessment_question {
+    display: inline-block;
+    width : 100%;
+}
+.assessment_question_number {
+    float: left;
+}
+.assessment_question_text {
+    margin-left: 0.5em;
+    float: left;
+}
+.assessed {
+    background: #EAFAEA;
+}
+.container {
+    padding-bottom: 20em;
+}
+</style>
+<div class="form-group">
+    <label for="sel1">Select carefully the student you wish to enter a peer assessment for:</label>
+    <select class="form-control" id="assessee">
+        <option></option>
+        {% for (number, name) in students %}
+            <option value="{{number}}"
+                {% if number in assessed %}
+                class="assessed"
+                {% endif %}
+            >{{number}} {{name}}</option>
+        {% endfor %}
+    </select>
+</div>
+<p>
+Select the peer assessment grade you wish to enter from its pulldown menu.
+<p>
+<hr class="thick_hr">
+<p>
+
+{% for (label, question) in questions %}
+    <div class="assessment_question">
+        <div class="dropdown assessment_question_number">
+            <button class="btn dropdown-toggle assessment_button" type="button" name="{{ label }}" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+            {% for grade in grades %}
+                <li> <a href="javascript:void(0);">{{ grade }}</a>
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="assessment_question_text">
+            {{ question }}
+        </div>
+    </div>
+{% endfor %}
+
+
+
+<p>
+<hr class="thick_hr">
+<p>
+Each peer assessment is <b>automatically recorded</b> when you select
+it on the pull-down menu above.
+<p>
+You do not need to do anything to save the assessment.
+<p>
+You can return later and change or clear a peer assessment.
+<p>
+
+<p>
+If you enter incorrectly enter an assesssment please select <b>Clear mark</b> from the pull-down menu.
+<p>
+Or you can:
+<button class="btn btn-danger" id="clear_all_assessments">Remove All Your Assessment for this student</button>
+
+<p>
+It is <b>Student Misconduct</b> to falsely enter an incorrect peer assssement.
+<p>
+The grade you enter must be an honest assessment of the student's work.
+{% endblock %}

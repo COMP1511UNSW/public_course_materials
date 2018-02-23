@@ -15,7 +15,7 @@ Allow from 192.168.0.0/255.255.0.0  # home
 Allow from 172.0.0.0/255.0.0.0      # docker
 Allow from ::1 #ipv6
 
-SetEnvIf Request_URI ^ BASE_URL=/~cs2041
+SetEnvIf Request_URI ^ BASE_URL=/~cs1511
 
 # the tutors directory and other directories containing .py files which must run as CGI scripts
 # need htaccess files explicitly setting their type
@@ -43,7 +43,7 @@ RewriteRule ^flask_tutors\.cgi - [L]
 # filesystem permissions access to un released solutions
 # this rewrite allows tutors access
 
-RewriteCond /web/cs2041/tlb/$3/$2_$4_released !-f
+RewriteCond /web/cs1511/tlb/$3/$2_$4_released !-f
 RewriteRule ((tut|lab|test)/([0-9][0-9])/(questions|answers))$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]
 
 RewriteRule ^(notes/[0-9][0-9])$ %{ENV:BASE_URL}/flask_tutors.cgi/$1 [L]

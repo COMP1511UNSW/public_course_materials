@@ -1,0 +1,27 @@
+{% extends "templates/base.html" %}
+
+{% block heading_title %}
+Code Examples from Lectures on {{topic}}
+{% endblock %}
+
+{% block body_contents %}
+{% for code_file in code_files %}
+    {% set pathname = os.path.join('code', topic, code_file) %}
+    <div class="code_example">
+        <div class="example_link">
+            <a target="source" href="{{url_root}}{{pathname}}">{{code_file}}</a>
+        </div>
+    <div class="header_comment">
+{% autoescape false %}
+{{ read_code(pathname, header_only=True) }}
+{% endautoescape %}
+    </div>
+
+<pre class="program" style="max-height: 64em;overflow:  auto;">
+{{ read_code(pathname, body_only=True) }}</pre>
+
+    {{edit_github(pathname)}}
+
+    </div>
+{% endfor %}
+{% endblock %}

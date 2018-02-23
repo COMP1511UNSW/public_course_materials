@@ -1,0 +1,21 @@
+{% extends "templates/base.html" %}
+
+{% block title %}
+{{course_code}} Week {{week}} Tutor's Notes
+{% endblock %}
+
+{% block heading_title %}
+
+<span class="dropdown">
+    <button class="btn dropdown-toggle heading_button" type="button" data-toggle="dropdown">
+        Week {{week}} Tutor's Notes
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        {% for week in tlb_list['notes']  %}
+            <li><a HREF="{{url_root}}/notes/{{week}}">Week {{week}} Tutor's Notes</a></li>
+        {% endfor %}
+    </ul>
+</span>
+
+{% endblock %}

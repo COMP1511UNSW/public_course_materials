@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3
 
 import datetime, glob, gzip, html, json, os, re, sqlite3, subprocess, tarfile, time,     traceback
 from collections import defaultdict, OrderedDict

@@ -1,0 +1,19 @@
+{% extends "templates/base.html" %}
+{% block body %}
+<form method="POST" action="">
+    {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+    {% endfor %}
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    <p>
+    <div class="login_page">
+        <div>zid: <input name="zid" ></div>
+        <p>
+        <div>zpass: <input type="password" name="zpass" ></div>
+        <p>
+        <div><input type="submit" value="Login" ></div>
+    </div>
+</form>
+{% endblock %}

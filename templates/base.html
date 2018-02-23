@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>
+{% block title %}
+{{course_code}} - {{course_name}} - {{unsw_session}}
+{% endblock %}
+</title>
+
+{% from "templates/macros.html" import execute,include_code,edit_github,autotest_summary,show_cgi_example with context %}
+
+<link href="{{ unique_static_url_for('bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ unique_static_url_for('course.css') }}" rel="stylesheet">
+<script type="text/javascript" src="{{ unique_static_url_for('jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ unique_static_url_for('bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ unique_static_url_for('course.js') }}"></script>
+<link rel="canonical" href="{{ canonical_url }}" />
+</head>
+<body>
+
+
+
+{% block body %}
+<div class="container">
+
+<div id="heading">
+{% block heading %}
+
+<a class="heading_link" target="_blank" id="left_heading_link" href="http://www.cse.unsw.edu.au/~{{course_account}}/{{unsw_session}}/">{{course_code_regex}} {{unsw_session}}</a>
+
+{% block heading_title %}
+{{ self.title() }}
+{% endblock %}
+
+<a class="heading_link" target="_blank" id="right_heading_link" href="http://www.cse.unsw.edu.au/~{{course_account}}/{{unsw_session}}/">{{course_name}}</a>
+{% endblock %}
+</div>
+
+</div>
+
+{% block body_contents %}
+{% endblock %}
+
+
+{{edit_github(template_pathname)}}
+
+</div>
+{% endblock %}
+
+<!--
+{% for (name,value) in template_variables.items() %}{% if isinstance(value, str) %}{{name}}={{value}}
+{% endif %}{% endfor %}
+-->
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends "templates/base.html" %}
+{% set autotest_command = course_number + " autotest" %}
+
+{% macro autotest_reminder() -%}
+{% set autotest_files = " ".join(sorted(varargs)) %}
+<p>
+As usual use <code>autotest</code> to assist in testing your code (do your own testing too!):
+
+<pre class="command_line">
+<kbd class="shell">{{autotest_command}} {{exercise_name}} {{autotest_files}}</kbd>
+</pre>
+
+{{ autotest_summary(exercise_name, autotest_files) }}
+
+{%- endmacro %}
+
+{% block title %}
+{{course_code}} Week {{week}} {{full_name[tut_or_lab_or_test]['self']}} {{full_name[tut_or_lab_or_test][questions_or_answers]}}
+{% endblock %}
+
+{% block heading_title %}
+
+<span class="dropdown">
+    <button class="btn dropdown-toggle heading_button" type="button" data-toggle="dropdown">
+        Week {{week}}
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        {% for week in tlb_list[tut_or_lab_or_test][questions_or_answers]['released'] %}
+            <li><a HREF="{{url_root}}{{tut_or_lab_or_test}}/{{week}}/{{questions_or_answers}}">Week {{week}}</a></li>
+        {% endfor %}
+        {% if is_tutor %}
+            {% for week in tlb_list[tut_or_lab_or_test][questions_or_answers]['unreleased'] %}
+                <li><a HREF="{{url_root}}{{tut_or_lab_or_test}}/{{week}}/{{questions_or_answers}}">Week {{week}} (tutors only)</a></li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</span>
+
+<span class="dropdown">
+    <button class="btn dropdown-toggle heading_button" type="button" data-toggle="dropdown">
+        {{full_name[tut_or_lab_or_test]['self']}}
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        {% for tlb in ['tut', 'lab', 'test'] %}
+            {% if week in  tlb_list[tlb][questions_or_answers]['released'] + tlb_list[tlb][questions_or_answers]['unreleased'] %}
+                <li><a HREF="{{url_root}}{{tlb}}/{{week}}/{{questions_or_answers}}">{{full_name[tlb]['self']}}
+                {% if week not in tlb_list[tlb][questions_or_answers]['released'] %}
+                    (tutors only)
+                {% endif %}
+            </a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</span>
+
+<span class="dropdown">
+    <button class="btn dropdown-toggle heading_button" type="button" data-toggle="dropdown">
+        {{full_name[tut_or_lab_or_test][questions_or_answers]}}
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        {% for qa in ['questions', 'answers'] %}
+            <li><a HREF="{{url_root}}{{tut_or_lab_or_test}}/{{week}}/{{qa}}">{{full_name[tut_or_lab_or_test][qa]}}
+            {% if week not in tlb_list[tut_or_lab_or_test][qa]['released'] %}
+                (tutors only)
+            {% endif %}
+            </a></li>
+        {% endfor %}
+        {% if is_tutor  %}
+            <li><a HREF="{{url_root}}notes/{{week}}">Tutor's Notes
+        {% endif %}
+    </ul>
+</span>
+
+{% if week not in tlb_list[tut_or_lab_or_test][questions_or_answers]['released'] %}
+<! -- Tutors Only -->
+{% endif %}
+{% endblock %}

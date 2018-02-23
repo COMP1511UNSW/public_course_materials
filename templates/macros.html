@@ -1,0 +1,127 @@
+{% macro execute(shell_command, show_command=True, cwd='', height='32em', split_semicolon=True, input="",show_eof=True) -%}
+
+{% if not cwd %}
+    {% if directory_relative_pathname.startswith('tlb/') %}
+        {% set cwd = os.path.join('private', directory_relative_pathname, 'solutions') %}
+    {% elif directory_relative_pathname.startswith('private/tlb/') %}
+        {% set cwd = os.path.join(directory_relative_pathname, 'solutions') %}
+    {% else %}
+        {% set cwd = directory_relative_pathname,  %}
+    {% endif %}
+{% elif cwd == 'solutions' %}
+    {% if directory_relative_pathname.startswith('tlb/') %}
+        {% set cwd = os.path.join('private', directory_relative_pathname, 'solutions') %}
+    {% elif directory_relative_pathname.startswith('private/tlb/') %}
+        {% set cwd = os.path.join(directory_relative_pathname, 'solutions') %}
+    {% endif %}
+{% endif %}
+
+{% if split_semicolon %}
+{% set command_list = re.split('\\s*;\\s*', shell_command.strip()) %}
+{% else %}
+{% set command_list = [shell_command] %}
+{% endif %}
+{% if height %}
+<pre class="command_line" style="max-height: {{height}};overflow:  auto;">
+{% else %}
+<pre class="command_line">
+{% endif %}{% for command in command_list %}{% if show_command %}<kbd class="shell">{{command}}</kbd>
+{% endif %}{% if input %}<kbd>{{input}}</kbd>{% if show_eof %}<span class="eof"></span>
+{% endif %}{% endif %}{{ execute_shell_command(command, cwd=cwd, input=input)}}{% endfor %}</pre>
+{%- endmacro %}
+
+{% macro edit_github(pathname) -%}
+{% if is_tutor %}
+
+    {% if pathname.startswith('private/') %}
+        {% set pathname = pathname[len('private/'):] %}
+    {% endif %}
+
+    <div class="edit_github">
+        <a href="{{github_repo_url}}/edit/master/{{pathname}}" class="edit_github_link btn btn-xs" role="button">Edit {{pathname}} on github</a>
+    </div>
+
+{% endif %}
+{%- endmacro %}
+
+{% macro include_code(pathname, function_only='', height=None) -%}
+{% if not pathname.startswith('/') %}
+{% set pathname = os.path.join(directory_relative_pathname, pathname) %}
+{% endif %}
+{% if height %}
+<pre class="program" style="max-height: {{height}};overflow:  auto;">
+{% else %}
+<pre class="program">
+{% endif %}
+{{ read_code(pathname, function_only=function_only) }}
+</pre>
+
+{{edit_github(pathname)}}
+
+{%- endmacro %}
+
+{% macro autotest_summary(exercise_name, autotest_files) -%}
+
+{% if testing_results.get(exercise_name, {}).get('automarking', {}).get(autotest_files, {}) %}
+    {% set which = "marking" %}
+{% elif testing_results.get(exercise_name, {}).get('autotest', {}).get(autotest_files, {}) %}
+    {% set which = "test" %}
+{% endif %}
+
+{% if which %}
+    {% set results = testing_results[exercise_name]['auto'+which][autotest_files] %}
+    {% set individual_tests = results.get('individual_tests',{}) %}
+    <div class="autotest_results">
+    <h4>Auto{{which}} Results</h4>
+        <span class="autotest_results_emphasis">{{"%.0f" % (100 * results.get('passed_fraction', 0))}}%</span>
+        {# <span class="autotest_results_emphasis">({{results.get('passed', 0)}})</span> #}
+        of <span class="autotest_results_emphasis">{{results.get('passed', 0)+results.get('failed', 0)}}</span> students
+        {% if which == "marking" %}
+            who submitted
+            <span class="autotest_results_emphasis">{{autotest_files}}</span>
+            (that could be marked)
+        {% else %}
+            who have autotested
+            <span class="autotest_results_emphasis">{{autotest_files}}</span>
+            so far,
+        {% endif %}
+        {% if len(individual_tests) == 1 %}
+            passed the auto{{which}} test.
+        {% else %}
+            passed all auto{{which}} tests.
+            {% if 1.0 > results.get('passed_fraction', 0) > 0.0 %}
+                <div class="autotest_results_individual">
+                <ul>
+                {% for (label,test) in sorted(individual_tests.items()) %}
+                    <li><span class="autotest_results_emphasis">{{"%.0f" % (100 * test.get('passed_fraction', 0))}}%</span>
+                    {# ({{test.get('passed', 0)}}) #}
+                    passed test <i>{{label}}</i>
+                {% endfor %}
+                </ul>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endif %}
+
+{%- endmacro %}
+
+{% macro show_cgi_example(url) -%}
+    <p>
+    <hr>
+    <div class="cgi_display">
+    <div class="cgi_display_title">
+    <a target="_blank" href="{{url}}">{{os.path.basename(url)}}</a>
+    </div>
+    <div class="cgi_output_panel">
+        <iframe class="cgi_output_display" src="{{url}}" onLoad="show_html_source(this)">
+        </iframe>
+    </div>
+    <div class="html_source_panel">
+        <div class="html_source_display">
+        </div>
+    </div>
+    </div>
+    <hr>
+    <p>
+{%- endmacro %}

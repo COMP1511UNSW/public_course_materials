@@ -1,0 +1,17 @@
+{% extends "templates/base.html" %}
+
+{% block heading_title %}
+{{marking_title}}
+{% endblock %}
+
+{% block body_contents %}
+
+<div class="give_marking">
+
+{% autoescape false %}
+{{marking}}
+{% endautoescape %}
+
+</div>
+
+{% endblock %}

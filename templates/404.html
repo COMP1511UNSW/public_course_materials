@@ -1,0 +1,13 @@
+{% extends "templates/base.html" %}
+{% block title %}
+Page Not Found
+{% endblock %}
+
+{% block body_contents %}
+
+Page not found on the <a href="{{ canonical_url }}">{{course_code}} website</a> .
+<p>
+If you think the URL you've used should work,
+please post a message in the <a href="{{ course_forum_url }}">course forum</a> and we'll fix it as soon as we can.
+
+{% endblock %}

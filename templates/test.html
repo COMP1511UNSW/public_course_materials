@@ -1,0 +1,95 @@
+{% extends "templates/tlb.html" %}
+
+{% block body_contents %}
+<div class="tutlab lab">
+
+{% block test_conditions %}
+
+<h3>Test Conditions</h3>
+
+These questions must be completed under self-administered exam-like conditions.
+
+<ul>
+<li> You may complete this test in CSE labs or elsewhere using your own machine
+<li> You may complete this test at any time before {{test_deadline}}
+<li> The maximum time allowed for this test is 1 hour
+<li> After starting this test you must complete the test within 1 hour and submit your
+answers with give.
+<li> you must complete the questions alone - you can not get help in any way from any person
+<li> you can not access web pages or use the internet in any way
+<li> you can not access books, notes or other written or online materials
+<li> you can not access your own files, programs, code ...
+<li> you can not access {{course_code}} course materials except for language documentation linked above.
+</ul>
+
+<hr>
+You may access this <b>language documentation</b> while attemting this test:
+<ul>
+<li><a href="{{url_root}}/exam/shell_perl_cheatsheet.pdf">Shell/Regex/Perl quick reference</a>
+<li><a href="{{url_root}}/exam/python_cheatsheet.pdf">Python quick reference</a>
+<li><a href="{{url_root}}/exam/C_cheatsheet.pdf">C quick reference</a>
+<li><a href="{{url_root}}/exam/java_cheatsheet.pdf">Java quick reference</a>
+<li><a href="{{url_root}}/doc/perldoc-html-5.14.0/index.html">full Perl documentation</a>
+<li><a href="{{url_root}}/doc/python-3.5.2-docs-html/index.html">full Python 3.5 documentation</a>
+<li><a href="{{url_root}}/doc/python-2.7.2-docs-html/index.html">full Python 2.7 documentation</a>
+</ul>
+<hr>
+
+You may also access manual entries (the man command)
+{% endblock %}
+<p>
+Any violation of the test conditions will results in a mark of zero for the entire weekly test component.
+
+{% block questions %}
+{% endblock %}
+{% block submission %}
+
+<h3>Submission</h3>
+
+
+When you are finished submit your work by running:
+
+<pre class="command_line">
+<kbd class="shell">give {{course_account}} {{exercise_name}} {{programs}}</kbd>
+</pre>
+<p>
+Don't submit any exercises you haven't attempted.
+
+If you are working at home, you may find it more convenient
+to upload your work via
+ <a href="https://cgi.cse.unsw.edu.au/~give/code/login.php?app=/~give/Student/give.php&amp;debug=get_authuser">give's web interface</a>.
+<p>
+Remember you have until <b>{{submission_deadline}}</b> to submit your work.
+{% endblock %}
+
+{% block assessment %}
+
+<h3>Assessment</h3>
+
+This test is worth 1 mark. It will be automarked.
+<p>
+After the automarking is complete you should be able to view it by running
+this command on a CSE machine:
+
+<pre class="command_line">
+<kbd class="shell">{{course_number}} classrun -collect {{exercise_name}}
+</pre>
+
+You can inspect marks for this lab and other assessment components via <a href="https://cgi.cse.unsw.edu.au/~give/code/login.php?app=/~give/Student/give.php&amp;debug=get_authuser">give's web interface</a> or by running
+
+<pre class="command_line">
+<kbd class="shell">{{course_number}} classrun -sturec
+</pre>
+
+<p>
+Reminder: weekly tests contribute 8% to your final {{course_code}} final mark.
+<p>
+Your mark for the test component will be the sum of your best 8 of 10 test marks.
+<p>
+Hence you can obtain full marks for the 8% weekly test component without obtaining full marks every week.
+<p>
+Reminder: any violation of the test conditions will results in a mark of zero for the entire coding test component.
+{% endblock %}
+
+</div>
+{% endblock %}

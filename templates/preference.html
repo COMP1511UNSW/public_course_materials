@@ -1,0 +1,45 @@
+{% extends "templates/base.html" %}
+{% block title %}
+Assignment 2 Demo Session
+{% endblock %}
+{% block body_contents %}
+
+<p>
+Select the demo session you intend to attend:
+<p>
+<form method="POST">
+<div class="btn-group" data-toggle="buttons">
+
+{% for (value, description) in options %}
+<label class="radio-inline">
+    <input
+        type="radio"
+        name="preference"
+        value="{{value}}"
+        {% if value == preference %}
+        checked
+        {% endif %}
+    >
+    {{description}}
+</label>
+<br>
+{% endfor %}
+
+</div>
+<p>
+<p>
+<input class="btn btn-primary" type="submit" value="Save">
+</form>
+
+{% if message %}
+<hr class="thick_hr">
+<b>{{message}}</b>
+{% endif %}
+
+<hr class="thick_hr">
+<p>
+This is for planning purposes only.
+<p>
+You can change your mind and attend another session.
+
+{% endblock %}

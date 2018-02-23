@@ -1,0 +1,115 @@
+{% extends "templates/tlb.html" %}
+
+{% block body_contents %}
+<div class="tutlab lab">
+
+
+{% block deadline %}
+<h3>Submission Summary</h3>
+Due
+{% if submission_deadline %}
+<b>{{submission_deadline}}</b>
+{% else %}
+Sunday midnight
+{% endif %}
+
+<pre class="command_line">
+<kbd class="shell">give {{course_account}} {{exercise_name}} {{programs}}</kbd>
+</pre>
+
+{% endblock %}
+
+
+<h3>Objectives</h3>
+
+{% block objectives %}
+{% endblock %}
+
+
+{#
+{% block preparation %}
+<h3>Preparation</h3>
+Before the lab you should re-read the relevant lecture slides and their accompanying examples.
+You should also have read the <a href="{{url_root}}lab_assessment.html">lab assessment guidelines</a>.
+
+{% endblock %}
+#}
+
+<h3>Getting Started</h3>
+
+{% block getting_started %}
+Create a new directory for this lab called <code>{{exercise_name}}</code> by typing:
+
+<pre class="command_line">
+<kbd class="shell">mkdir {{exercise_name}}</kbd>
+</pre>
+
+Change to this directory by typing:
+
+<pre class="command_line">
+<kbd class="shell">cd {{exercise_name}}</kbd>
+</pre>
+{% endblock %}
+
+
+{% block lab_exercises %}
+{% endblock %}
+
+{% block submission %}
+
+<h3>Submission</h3>
+
+When you are finished submit your work by running:
+<pre class="command_line">
+<kbd class="shell">give {{course_account}} {{exercise_name}} {{programs}}</kbd>
+</pre>
+<p>
+Don't submit any exercises you haven't attempted.
+
+If you are working at home, you may find it more convenient
+to upload your work via
+ <a href="https://cgi.cse.unsw.edu.au/~give/code/login.php?app=/~give/Student/give.php&amp;debug=get_authuser">give's web interface</a>.
+<p>
+Remember you have until
+{% if submission_deadline %}
+<b>{{submission_deadline}}</b>
+{% else %}
+Sunday midnight
+{% endif %}
+
+to submit your work.
+{% endblock %}
+
+{% block assessment %}
+
+<h3>Assessment</h3>
+
+This lab exercises is worth 1 mark.
+<p>
+Labs exercise are either automarked or peer assessed.
+This is to allow tutors' time to be used to assist students.
+<p>
+After the automarking is complete you should be able to view it by running
+this command on a CSE machine:
+
+<pre class="command_line">
+<kbd class="shell">{{course_number}} classrun -collect {{exercise_name}}
+</pre>
+
+You can inspect marks for this lab and other assessment components via <a href="https://cgi.cse.unsw.edu.au/~give/code/login.php?app=/~give/Student/give.php&amp;debug=get_authuser">give's web interface</a> or by running
+
+<pre class="command_line">
+<kbd class="shell">{{course_number}} classrun -sturec
+</pre>
+
+<p>
+Reminder: lab marks contribute 10% to your final{{course_code_regex}} final mark.
+<p>
+The 11 lab marks will be summed at the end of session and the sum capped at 9 marks.
+<p>
+Hence you can obtain full marks for the 10% lab component without obtaining full marks every week.
+
+{% endblock %}
+
+</div>
+{% endblock %}

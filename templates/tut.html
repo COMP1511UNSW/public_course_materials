@@ -1,0 +1,22 @@
+{% extends "templates/tlb.html" %}
+
+{% block body_contents %}
+<div class="tutlab tut">
+<ol>
+{% block questions %}
+{% endblock %}
+{% block revision_header %}
+<h3>Revision questions</h3>
+
+The remaining tutorial questions are primarily intended for revision - either this week
+or later in session.
+<p>
+Your tutor may still choose to cover some of the questions time permitting.
+<p>
+{% endblock %}
+{% block revision_questions %}
+
+{% endblock %}
+</ol>
+</div>
+{% endblock %}
